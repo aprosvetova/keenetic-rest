@@ -1,0 +1,20 @@
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Build and push Docker image
+          context: docker
+          command: |
+            docker build -t ${CIRCLE_PROJECT_REPONAME}:${CIRCLE_BUILD_NUM} .
+            docker login registry.koteeq.me -u koteeq -p ${DOCKER_PWD}
+            docker tag ${CIRCLE_PROJECT_REPONAME}:${CIRCLE_BUILD_NUM} registry.koteeq.me/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_BUILD_NUM}
+            docker tag ${CIRCLE_PROJECT_REPONAME}:${CIRCLE_BUILD_NUM} registry.koteeq.me/${CIRCLE_PROJECT_REPONAME}:latest
+            docker push registry.koteeq.me/${CIRCLE_PROJECT_REPONAME}
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          context: docker
